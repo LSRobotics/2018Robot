@@ -7,10 +7,9 @@ build:
     stage: build
     script: 
         - wget --output-document="/ant.zip" http://archive.apache.org/dist/ant/ant-current-bin.zip
-        - unzip /ant.zip -d /
+        - unzip -p /ant.zip -d /
         - mv /apache-ant* /ant
-        - ls / 
         - /ant/bin/ant -find compile.xml
     artifacts:
         paths:
-            - lib/wpilib/*.jar
+            - build/*
