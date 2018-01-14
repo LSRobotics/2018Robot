@@ -9,7 +9,8 @@ build:
         - wget --output-document="/ant.zip" http://archive.apache.org/dist/ant/ant-current-bin.zip
         - unzip /ant.zip -d /
         - mv /apache-ant* /ant
-        - ./ant/bin/ant -find compile.xml
+        - ls / 
+        - /ant/bin/ant -find compile.xml
     artifacts:
         paths:
             - lib/wpilib/*.jar
