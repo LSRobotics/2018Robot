@@ -1,5 +1,12 @@
-sudo: false
-language: java
-before-script: javac -version
-script: ant -find compile.xml
-jdk: oraclejdk8
+image: java:8-jdk
+
+stages:
+    - build
+
+build:
+    stage: build
+    script: 
+        - ant -find compile.xml
+    artifacts:
+        paths:
+            - lib/wpilib/*.jar
