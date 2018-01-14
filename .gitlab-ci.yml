@@ -6,7 +6,9 @@ stages:
 build:
     stage: build
     script: 
-        - ls /opt
+        - mkdir /ant
+        - wget --output-document="/ant/ant.zip" http://archive.apache.org/dist/ant/ant-current-bin.zip
+        - unzip /ant/ant.zip -d /ant
         - ./ant/bin/ant -find compile.xml
     artifacts:
         paths:
