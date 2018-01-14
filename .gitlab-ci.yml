@@ -7,7 +7,7 @@ build:
     stage: build
     script: 
         - wget --output-document="/ant.zip" http://archive.apache.org/dist/ant/ant-current-bin.zip
-        - unzip -p /ant.zip -d /
+        - unzip -q /ant.zip -d /
         - mv /apache-ant* /ant
         - /ant/bin/ant -find compile.xml
     artifacts:
