@@ -6,7 +6,7 @@ stages:
 build:
     stage: build
     script: 
-        - ant -find compile.xml
+        - /ant/bin/ant -find compile.xml
     artifacts:
         paths:
             - lib/wpilib/*.jar
