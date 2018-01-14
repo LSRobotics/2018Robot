@@ -6,6 +6,9 @@ stages:
 build:
     stage: build
     script: 
+        - ls /
+        - ls /ant
+        - ls /ant/bin
         - ./ant/bin/ant -find compile.xml
     artifacts:
         paths:
