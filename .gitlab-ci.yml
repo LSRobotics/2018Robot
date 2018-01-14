@@ -13,3 +13,4 @@ build:
     artifacts:
         paths:
             - build/*
+        expire_in: 2 days
