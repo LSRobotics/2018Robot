@@ -11,11 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Robot extends IterativeRobot {
-	final String defaultAuto = "Default";
-	final String customAuto = "My Auto";
-	String autoSelected;
-	SendableChooser<String> chooser = new SendableChooser<>();
+final public class Robot extends IterativeRobot {
+	static String autoSelected;
+	static SendableChooser<String> chooser = new SendableChooser<>();
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -23,8 +21,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
-		chooser.addDefault("Default Auto", defaultAuto);
-		chooser.addObject("My Auto", customAuto);
+		chooser.addDefault("Default Auto", Statics.DEFAULT_AUTO);
+		chooser.addObject("My Auto", Statics.CUSTOM_AUTO);
 		SmartDashboard.putData("Auto choices", chooser);
 	}
 
@@ -53,10 +51,10 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		switch (autoSelected) {
-		case customAuto:
+		case Statics.CUSTOM_AUTO:
 			// Put custom auto code here
 			break;
-		case defaultAuto:
+		case Statics.DEFAULT_AUTO:
 		default:
 			// Put default auto code here
 			break;
