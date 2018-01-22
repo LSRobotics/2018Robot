@@ -1,8 +1,9 @@
 package frc.team5181;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.team5181.autonomous.AutonChooser;
+import frc.team5181.tasking.Task;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -12,18 +13,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * directory.
  */
 final public class Robot extends IterativeRobot {
-	static String autoSelected;
-	static SendableChooser<String> chooser = new SendableChooser<>();
-
+	Task autonCommand;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
-		chooser.addDefault("Default Auto", Statics.DEFAULT_AUTO);
-		chooser.addObject("My Auto", Statics.CUSTOM_AUTO);
-		SmartDashboard.putData("Auto choices", chooser);
+
+		AutonChooser.chooserInit();
 	}
 
 	/**
@@ -39,10 +37,7 @@ final public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		autoSelected = chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);
+		autonCommand = AutonChooser.getAutonCommand();
 	}
 
 	/**
@@ -50,15 +45,7 @@ final public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		switch (autoSelected) {
-		case Statics.CUSTOM_AUTO:
-			// Put custom auto code here
-			break;
-		case Statics.DEFAULT_AUTO:
-		default:
-			// Put default auto code here
-			break;
-		}
+		autonCommand.nextStep();
 	}
 
 	/**
