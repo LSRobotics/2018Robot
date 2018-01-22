@@ -74,11 +74,13 @@ fabric.properties
 hs_err_pid*
 
 .gitignore
+.idea/
 .idea/.name
 .idea/inspectionProfiles/
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
 .idea/workspace.xml
+.idea/dictionaries/
 frc2018.iml
 bin/
