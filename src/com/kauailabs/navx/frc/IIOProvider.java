@@ -10,12 +10,13 @@
 package com.kauailabs.navx.frc;
 
 interface IIOProvider {
-    boolean  isConnected();
-    double   getByteCount();
-    double   getUpdateCount();
-    void     setUpdateRateHz(byte update_rate);
-    void     zeroYaw();
-    void     zeroDisplacement();
-    void     run();
-    void     stop();
+    public boolean  isConnected();
+    public double   getByteCount();
+    public double   getUpdateCount();
+    public void     setUpdateRateHz(byte update_rate);
+    public void     zeroYaw();
+    public void     zeroDisplacement();
+    public void     run();
+    public void     stop();
+    public void		enableLogging(boolean enable);
 }

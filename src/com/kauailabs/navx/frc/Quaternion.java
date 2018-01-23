@@ -22,8 +22,8 @@ public class Quaternion {
         float x;
         float y;
         float z;
-    }
-
+    };    
+    
     public Quaternion() {
     	set(0,0,0,0);
     }

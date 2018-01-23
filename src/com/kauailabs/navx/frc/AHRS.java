@@ -15,15 +15,17 @@ import com.kauailabs.navx.AHRSProtocol.AHRSPosUpdate;
 import com.kauailabs.navx.AHRSProtocol.BoardID;
 import com.kauailabs.navx.IMUProtocol.YPRUpdate;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.SensorBase;
 import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.livewindow.LiveWindowSendable;
-import edu.wpi.first.wpilibj.tables.ITable;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 
 /**
  * The AHRS class provides an interface to AHRS capabilities
@@ -43,7 +45,7 @@ import edu.wpi.first.wpilibj.Timer;
  * @author Scott
  */
 
-public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
+public class AHRS extends SensorBase implements PIDSource, Sendable {
 
     /**
      * Identifies one of the three sensing axes on the navX sensor board.  Note that these axes are
@@ -59,13 +61,13 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
         
         private int value;
         
-        BoardAxis(int value) {
+        private BoardAxis(int value) {
             this.value = value;
         }
         public int getValue() {
             return this.value;
         }
-    }
+    };
 
     /**
      * Indicates which sensor board axis is used as the "yaw" (gravity) axis.
@@ -77,7 +79,7 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
     {
         public BoardAxis board_axis;
         public boolean up;
-    }
+    };
 
     /** 
      * For use with serial communications, the SerialDataType specifies the
@@ -101,14 +103,14 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
         
         private int value;
         
-        SerialDataType(int value){
+        private SerialDataType(int value){
             this.value = value;
         }
         
         public int getValue(){
             return this.value;
         }
-    }
+    };
 
     static final byte   NAVX_DEFAULT_UPDATE_RATE_HZ         = 60;
     static final int    YAW_HISTORY_LENGTH      			= 10;
@@ -174,8 +176,6 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
     
     long                last_sensor_timestamp;
     double              last_update_time;
-
-    ITable              m_table;
     
     InertialDataIntegrator  integrator;
     ContinuousAngleTracker  yaw_angle_tracker;
@@ -468,12 +468,12 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
 
     public int getActualUpdateRate() {
         byte actual_update_rate = getActualUpdateRateInternal((byte)getRequestedUpdateRate());
-        return actual_update_rate & 0xFF;
+        return (int)(actual_update_rate & 0xFF);
     }    
     
     private byte getActualUpdateRateInternal(byte update_rate) {
         final int NAVX_MOTION_PROCESSOR_UPDATE_RATE_HZ = 200;
-        int integer_update_rate = update_rate & 0xFF;
+        int integer_update_rate = (int)(update_rate & 0xFF);
         int realized_update_rate = NAVX_MOTION_PROCESSOR_UPDATE_RATE_HZ /
                 (NAVX_MOTION_PROCESSOR_UPDATE_RATE_HZ / integer_update_rate);
         return (byte)realized_update_rate;    	
@@ -493,7 +493,7 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
 	 */
 
     public int getRequestedUpdateRate() {
-        return this.update_rate_hz & 0xFF;
+        return (int)(this.update_rate_hz & 0xFF);
     }    
     
     /**
@@ -1189,7 +1189,7 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
             yaw_axis.up = true;
             yaw_axis.board_axis = BoardAxis.kBoardAxisZ;
         } else {
-            yaw_axis.up = (((yaw_axis_info & 0x01) != 0));
+            yaw_axis.up = (((yaw_axis_info & 0x01) != 0) ? true : false);
             yaw_axis_info >>= 1;
             switch ( (byte)yaw_axis_info ) {
             case 0:
@@ -1224,6 +1224,17 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
         return fw_version;
     }
     
+    /**
+     * Enables or disables logging (via Console I/O) of AHRS library internal
+     * behaviors, including events such as transient communication errors.
+     * @param enable
+     */
+    public void enableLogging(boolean enable) {
+    	if ( this.io != null) {
+    		io.enableLogging(enable);
+    	}
+    }
+    
     /***********************************************************/
     /* Runnable Interface Implementation                       */
     /***********************************************************/
@@ -1255,25 +1266,25 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
         @Override
         public boolean isOmniMountSupported()
         {
-           return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_OMNIMOUNT) != 0));
+           return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_OMNIMOUNT) !=0) ? true : false);
         }
     
         @Override
         public boolean isBoardYawResetSupported()
         {
-            return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_YAW_RESET) != 0));
+            return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_YAW_RESET) != 0) ? true : false);
         }
     
         @Override
         public boolean isDisplacementSupported()
         {
-            return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_VEL_AND_DISP) != 0));
+            return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_VEL_AND_DISP) != 0) ? true : false);
         }
         
         @Override
         public boolean isAHRSPosTimestampSupported()
         {
-        	return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_AHRSPOS_TS) != 0));
+        	return (((capability_flags & AHRSProtocol.NAVX_CAPABILITY_FLAG_AHRSPOS_TS) != 0) ? true : false);
         }
     }
     /***********************************************************/
@@ -1321,20 +1332,25 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
             
             // Status/Motion Detection
             AHRS.this.is_moving              = 
-                    (((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_MOVING) != 0));
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_MOVING) != 0) 
+                            ? true : false);
             AHRS.this.is_rotating                = 
-                    ((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_YAW_STABLE) == 0);
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_YAW_STABLE) != 0) 
+                            ? false : true);
             AHRS.this.altitude_valid             = 
-                    (((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_ALTITUDE_VALID) != 0));
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_ALTITUDE_VALID) != 0) 
+                            ? true : false);
             AHRS.this.is_magnetometer_calibrated =
-                    (((ahrs_update.cal_status &
-                            AHRSProtocol.NAVX_CAL_STATUS_MAG_CAL_COMPLETE) != 0));
+                    (((ahrs_update.cal_status & 
+                            AHRSProtocol.NAVX_CAL_STATUS_MAG_CAL_COMPLETE) != 0) 
+                            ? true : false);
             AHRS.this.magnetic_disturbance       =
-                    (((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_MAG_DISTURBANCE) != 0));
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_MAG_DISTURBANCE) != 0) 
+                            ? true : false);                        
 
             AHRS.this.quaternionW                = ahrs_update.quat_w;
             AHRS.this.quaternionX                = ahrs_update.quat_x;
@@ -1416,20 +1432,25 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
             
             // Status/Motion Detection
             AHRS.this.is_moving              = 
-                    (((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_MOVING) != 0));
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_MOVING) != 0) 
+                            ? true : false);
             AHRS.this.is_rotating                = 
-                    ((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_YAW_STABLE) == 0);
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_YAW_STABLE) != 0) 
+                            ? false : true);
             AHRS.this.altitude_valid             = 
-                    (((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_ALTITUDE_VALID) != 0));
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_ALTITUDE_VALID) != 0) 
+                            ? true : false);
             AHRS.this.is_magnetometer_calibrated =
-                    (((ahrs_update.cal_status &
-                            AHRSProtocol.NAVX_CAL_STATUS_MAG_CAL_COMPLETE) != 0));
+                    (((ahrs_update.cal_status & 
+                            AHRSProtocol.NAVX_CAL_STATUS_MAG_CAL_COMPLETE) != 0) 
+                            ? true : false);
             AHRS.this.magnetic_disturbance       =
-                    (((ahrs_update.sensor_status &
-                            AHRSProtocol.NAVX_SENSOR_STATUS_MAG_DISTURBANCE) != 0));
+                    (((ahrs_update.sensor_status & 
+                            AHRSProtocol.NAVX_SENSOR_STATUS_MAG_DISTURBANCE) != 0) 
+                            ? true : false);                        
 
             AHRS.this.quaternionW                = ahrs_update.quat_w;
             AHRS.this.quaternionX                = ahrs_update.quat_x;
@@ -1482,34 +1503,13 @@ public class AHRS extends SensorBase implements PIDSource, LiveWindowSendable {
 		public void yawResetComplete() {
 			AHRS.this.yaw_angle_tracker.reset();
 		}
-    }
-
-    /***********************************************************/
-    /* LiveWindowSendable Interface Implementation             */
-    /***********************************************************/
+    };
     
-    public void updateTable() {
-        if (m_table != null) {
-            m_table.putNumber("Value", getYaw());
-        }
-    }
-
-    public void startLiveWindowMode() {
-    }
-
-    public void stopLiveWindowMode() {
-    }
-
-    public void initTable(ITable itable) {
-        m_table = itable;
-        updateTable();
-    }
-
-    public ITable getTable() {
-        return m_table;
-    }
-
-    public String getSmartDashboardType() {
-        return "Gyro";
-    }
+    /***********************************************************/
+    /* Sendable Interface Implementation                       */
+    /***********************************************************/
+    public void initSendable(SendableBuilder builder) {
+      builder.setSmartDashboardType("Gyro");
+      builder.addDoubleProperty("Value", this::getAngle, null);
+   }
 }

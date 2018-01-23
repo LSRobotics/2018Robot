@@ -25,5 +25,5 @@ import com.kauailabs.navx.AHRSProtocol.AHRSUpdateBase;
  *  navX-Model device host's data acquisition process.
 **/
 public interface ITimestampedDataSubscriber {
-    void timestampedDataReceived(long system_timestamp, long sensor_timestamp, AHRSUpdateBase sensor_data, Object context);
+    public void timestampedDataReceived( long system_timestamp, long sensor_timestamp, AHRSUpdateBase sensor_data, Object context );
 }
