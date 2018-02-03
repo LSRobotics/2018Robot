@@ -15,169 +15,200 @@ final public class Gamepad { //Why final? Because then Java would try to final e
         JOYSTICK
     }
 
-    final public class ValueContainer {
+    static private class ValueContainer {
         //Gamepad
-        public double jLeftX = 0;
-        public double jLeftY = 0;
-        public double jRightX = 0;
-        public double jRightY = 0;
-        public boolean jLeft = false;
-        public boolean jRight = false;
-        public int dPad = -1;
-        public boolean A = false;
-        public boolean B = false;
-        public boolean X = false;
-        public boolean Y = false;
-        public boolean LB = false;
-        public boolean RB = false;
-        public double LT = 0;
-        public double RT = 0;
-        public boolean back = false;
-        public boolean start = false;
+        public int      dPad = -1;
+        public double  jLeftX = 0,
+                       jLeftY = 0,
+                       jRightX = 0,
+                       jRightY = 0,
+                       LT = 0,
+                       RT = 0;
+
+        public boolean jLeft = false,
+                       jRight = false,
+                       A = false,
+                       B = false,
+                       X = false,
+                       Y = false,
+                       LB = false,
+                       RB = false,
+                       back = false,
+                       start = false;
 
         //Joystick
         public boolean js_trigger = false;
-        public double js_x = 0;
-        public double js_y = 0;
+        public double js_x = 0,
+                      js_y = 0;
 
         //POV
         public int POV = -1;
+
+        public void writeValue(ValueContainer another) {
+            this.dPad = another.dPad;
+            this.jLeftX = another.jLeftX;
+            this.jLeftY = another.jLeftY;
+            this.jRightX = another.jRightY;
+            this.jRightY = another.jRightY;
+            this.LT = another.LT;
+            this.RT = another.RT;
+    
+            this.jLeft = another.jLeft;
+            this.jRight = another.jRight;
+            this.A = another.A;
+            this.B = another.B;
+            this.X = another.X;
+            this.Y = another.Y;
+            this.LB = another.LB;
+            this.RB = another.RB;
+            this.back = another.back;
+            this.start = another.start;
+    
+            //Joystick
+            this.js_trigger = another.js_trigger;
+            this.js_x = another.js_x;
+            this.js_y = another.js_y;
+        }
     }
 
-    private ValueContainer previous = new ValueContainer();
-    public  ValueContainer current = new ValueContainer();
-    private ValueContainer temp;
+    //===================
+    //Variables
+    //===================
 
-    private Mode CONTROLLER_MODE;
-    private int portNumber;
-    private int xStickPort;
-    private int yStickPort;
-    private int triggerPort;
+    private static  ValueContainer previous = new ValueContainer(),
+                                    current = new ValueContainer(),
+                             cleanContainer = new ValueContainer();
 
-    private  XboxController xGP;
-    private  Joystick jJS;
+    private static Mode CONTROLLER_MODE;
+    private static int portNumber,
+                       xStickPort,
+                       yStickPort,
+                       triggerPort;
+
+    private static XboxController xGP;
+    private static Joystick jJS;
 
     //Gamepad
-    public boolean jLeftX_state = false;
-    public boolean jLeftY_state = false;
-    public boolean jRightX_state = false;
-    public boolean jRightY_state = false;
-    public boolean jLeft_state = false;
-    public boolean jRight_state = false;
-    public boolean dPad_state = false;
-    public boolean A_state = false;
-    public boolean B_state = false;
-    public boolean X_state = false;
-    public boolean Y_state = false;
-    public boolean LB_state = false;
-    public boolean RB_state = false;
-    public boolean LT_state = false;
-    public boolean RT_state = false;
-    public boolean back_state = false;
-    public boolean start_state = false;
+    static public boolean jLeftX_state = false, 
+              jLeftY_state = false, 
+              jRightX_state = false, 
+              jRightY_state = false, 
+              jLeft_state = false, 
+              jRight_state = false, 
+              dPad_state = false, 
+              A_state = false, 
+              B_state = false, 
+              X_state = false, 
+              Y_state = false, 
+              LB_state = false, 
+              RB_state = false, 
+              LT_state = false, 
+              RT_state = false, 
+              back_state = false, 
+              start_state = false, 
 
     //Joystick
-    public boolean js_trigger_state = false;
-    public boolean js_x_state = false;
-    public boolean js_y_state = false;
+              js_trigger_state = false, 
+              js_x_state = false, 
+              js_y_state = false,
 
     //POV
-    public boolean POV_state = false;
+              POV_state = false;
     
     //TODO redo mapping
 
-    public Gamepad(int xboxPort) {
-        this.portNumber= xboxPort;
-        this.CONTROLLER_MODE = Mode.GAMEPAD;
+    //=============================
+    //Methods
+    //=============================
+
+    static public void init(int xboxPort) {
+        portNumber= xboxPort;
+        CONTROLLER_MODE = Mode.GAMEPAD;
         xGP = new XboxController(portNumber);
     }
     
-    public Gamepad(int jStickPort, int xStickPort, int yStickPort, int triggerPort) {
-        this.portNumber = jStickPort;
-        this.xStickPort = xStickPort;
-        this.yStickPort = yStickPort;
-        this.triggerPort = triggerPort;
+    static public void init(int jStickPort, int xPort, int yPort, int trigPort) {
+
+        CONTROLLER_MODE = Mode.JOYSTICK;
+        
+        portNumber = jStickPort;
+        xStickPort = xPort;
+        yStickPort = yPort;
+        triggerPort = trigPort;
         
         jJS = new Joystick(portNumber);
     }
 
-    public void reset() {
-        switch(this.CONTROLLER_MODE) {
-            case GAMEPAD : xGP = new XboxController(portNumber);break;
-            case JOYSTICK : jJS = new Joystick(portNumber);break;
-            default : break; // tan90 boys
-        }
-        current = new ValueContainer();
-        previous = new ValueContainer();
+    static public void reset() {
+        current.writeValue(cleanContainer);
+        previous.writeValue(cleanContainer);
         updateStatus();
     }
 
-    public void updateStatus() {
+    static public void updateStatus() {
         //Get Data
-        switch(this.CONTROLLER_MODE) {
+        switch(CONTROLLER_MODE) {
             case GAMEPAD :
-                this.current.jLeftX  = xGP.getX(Hand.kLeft);
-                this.current.jLeftY  = xGP.getY(Hand.kLeft);
-                this.current.jRightX = xGP.getX(Hand.kRight);
-                this.current.jRightY = xGP.getY(Hand.kRight);
-                this.current.A       = xGP.getAButton();
-                this.current.B       = xGP.getBButton();
-                this.current.X       = xGP.getXButton();
-                this.current.Y       = xGP.getYButton();
-                this.current.LB      = xGP.getBumper(Hand.kLeft);
-                this.current.RB      = xGP.getBumper(Hand.kRight);
-                this.current.back    = xGP.getBackButton();
-                this.current.start   = xGP.getStartButton();
-                this.current.jLeft   = xGP.getStickButton(Hand.kLeft);
-                this.current.jRight  = xGP.getStickButton(Hand.kRight);
-                this.current.LT      = xGP.getTriggerAxis(Hand.kLeft);
-                this.current.RT      = xGP.getTriggerAxis(Hand.kRight);
-                this.current.dPad   = xGP.getPOV();
+                current.jLeftX  = xGP.getX(Hand.kLeft);
+                current.jLeftY  = xGP.getY(Hand.kLeft);
+                current.jRightX = xGP.getX(Hand.kRight);
+                current.jRightY = xGP.getY(Hand.kRight);
+                current.A       = xGP.getAButton();
+                current.B       = xGP.getBButton();
+                current.X       = xGP.getXButton();
+                current.Y       = xGP.getYButton();
+                current.LB      = xGP.getBumper(Hand.kLeft);
+                current.RB      = xGP.getBumper(Hand.kRight);
+                current.back    = xGP.getBackButton();
+                current.start   = xGP.getStartButton();
+                current.jLeft   = xGP.getStickButton(Hand.kLeft);
+                current.jRight  = xGP.getStickButton(Hand.kRight);
+                current.LT      = xGP.getTriggerAxis(Hand.kLeft);
+                current.RT      = xGP.getTriggerAxis(Hand.kRight);
+                current.dPad   = xGP.getPOV();
                 break;
             case JOYSTICK :
-                this.current.LT         = xGP.getTriggerAxis(Hand.kLeft);
-                this.current.RT         = xGP.getTriggerAxis(Hand.kRight);
-                this.current.js_trigger = jJS.getRawButton(this.triggerPort);
-                this.current.js_x       = jJS.getRawAxis(this.xStickPort);
-                this.current.js_y       = jJS.getRawAxis(this.yStickPort);
-                this.current.POV        = jJS.getPOV();
+                current.LT         = xGP.getTriggerAxis(Hand.kLeft);
+                current.RT         = xGP.getTriggerAxis(Hand.kRight);
+                current.js_trigger = jJS.getRawButton(triggerPort);
+                current.js_x       = jJS.getRawAxis(xStickPort);
+                current.js_y       = jJS.getRawAxis(yStickPort);
+                current.POV        = jJS.getPOV();
                 break;
             default : break; // tan90 boys
         }
 
         // Compare Data for state
 
-        switch(this.CONTROLLER_MODE) {
+        switch(CONTROLLER_MODE) {
             case GAMEPAD :
-                this.jLeftX_state = current.jLeftX != previous.jLeftX;
-                this.jLeftY_state = current.jLeftY != previous.jLeftY;
-                this.jRightX_state = current.jRightX != previous.jRightX;
-                this.jRightY_state = current.jRightY != previous.jRightY;
-                this.jLeft_state = current.jLeft != previous.jLeft;
-                this.jRight_state = current.jRight != previous.jRight;
-                this.dPad_state =  current.dPad != previous.dPad;
-                this.A_state = current.A != previous.A;
-                this.B_state = current.B != previous.B;
-                this.X_state = current.X != previous.X;
-                this.Y_state = current.Y != previous.Y;
-                this.LB_state = current.LB != previous.LB;
-                this.RB_state = current.RB != previous.RB;
-                this.LT_state = current.LT != previous.LT;
-                this.RT_state = current.RT != previous.RT;
-                this.back_state = current.back != previous.back;
-                this.start_state = current.start != previous.start;
+                jLeftX_state = current.jLeftX != previous.jLeftX;
+                jLeftY_state = current.jLeftY != previous.jLeftY;
+                jRightX_state = current.jRightX != previous.jRightX;
+                jRightY_state = current.jRightY != previous.jRightY;
+                jLeft_state = current.jLeft != previous.jLeft;
+                jRight_state = current.jRight != previous.jRight;
+                dPad_state =  current.dPad != previous.dPad;
+                A_state = current.A != previous.A;
+                B_state = current.B != previous.B;
+                X_state = current.X != previous.X;
+                Y_state = current.Y != previous.Y;
+                LB_state = current.LB != previous.LB;
+                RB_state = current.RB != previous.RB;
+                LT_state = current.LT != previous.LT;
+                RT_state = current.RT != previous.RT;
+                back_state = current.back != previous.back;
+                start_state = current.start != previous.start;
                 break;
             case JOYSTICK :
-                this.js_trigger_state = current.js_trigger != previous.js_trigger;
-                this.js_x_state = current.js_x != previous.js_x;
-                this.js_y_state = current.js_y != previous.js_y;
-                this.POV_state = current.POV != previous.POV;
+                js_trigger_state = current.js_trigger != previous.js_trigger;
+                js_x_state = current.js_x != previous.js_x;
+                js_y_state = current.js_y != previous.js_y;
+                POV_state = current.POV != previous.POV;
                 break;
             default : break; // tan90 boys
         }
-        this.temp = this.current;
-        this.previous = this.temp;
-
+        previous.writeValue(current);
     }
 
 }
