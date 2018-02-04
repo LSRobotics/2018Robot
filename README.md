@@ -1,6 +1,6 @@
 # FRC2018
 
-![HATSUME_MIKU_PIXIV](https://i.pximg.net/img-original/img/2016/03/06/17/13/06/55656503_p0.jpg "Miku")
+![HATSUME_MIKU_PIXIV](https://anime-pictures.net/pictures/download_image/544105-2000x1556-original-cecil86-single-looking+at+viewer-highres-blonde+hair.jpg)
 
 
 Team 5181's Code for FRC 2018 Power up
