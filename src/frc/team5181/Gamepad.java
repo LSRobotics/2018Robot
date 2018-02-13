@@ -1,8 +1,4 @@
-package frc.team5181.sensors;
-
-/**
- * Copyright
- */
+package frc.team5181;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -15,7 +11,7 @@ final public class Gamepad { //Why final? Because then Java would try to final e
         JOYSTICK
     }
 
-    static private class ValueContainer {
+    static public class ValueContainer {
         //Gamepad
         public int      dPad = -1;
         public double  jLeftX = 0,
@@ -75,9 +71,9 @@ final public class Gamepad { //Why final? Because then Java would try to final e
     //Variables
     //===================
 
-    private static  ValueContainer previous = new ValueContainer(),
-                                    current = new ValueContainer(),
-                             cleanContainer = new ValueContainer();
+    public   static  ValueContainer       previous = new ValueContainer(),
+                                           current = new ValueContainer();
+    private  static  ValueContainer cleanContainer = new ValueContainer();
 
     private static Mode CONTROLLER_MODE;
     private static int portNumber,

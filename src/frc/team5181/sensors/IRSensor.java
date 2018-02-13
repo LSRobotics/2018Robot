@@ -2,8 +2,6 @@ package frc.team5181.sensors;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import frc.team5181.pid.PIDSource;
-import frc.team5181.robot.sensors.IRSensorGroup.IRSensorPosition;
-import frc.team5181.robot.sensors.IRSensorGroup.IRSensorType;
 
 /**
  * Represents a single IR sensor on the robot. Basically a wrapper around AnalogInput.

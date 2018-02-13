@@ -1,9 +1,7 @@
 package frc.team5181.actuators;
 
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.team5181.Statics;
 import frc.team5181.pid.PIDTarget;
 
 /**
